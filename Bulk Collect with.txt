@@ -1,0 +1,182 @@
+----------------------------Bulk Collect or Bulk Data with a Cursor ------------------------
+
+The BULK COLLECT clause, a feature of bulk SQL, returns results from SQL to PL/SQL in batches rather than one at a time.
+The BULK COLLECT clause can appear in:
+• SELECT INTO statement
+• FETCH statement
+• RETURNING INTO clause of:
+– DELETE statement
+– INSERT statement
+– UPDATE statement
+– EXECUTE IMMEDIATE statement
+
+With the BULK COLLECT clause, each of the preceding statements retrieves an entire
+result set and stores it in one or more collection variables in a single operation (which
+is more efficient than using a loop statement to retrieve one result row at a time).
+
+
+
+--------------------------Retrieving Query Results into Collections with the BULK COLLECT Clause-----------------------------------------------
+Using the keywords BULK COLLECT with a query is a very efficient way to retrieve the result set. Instead of looping through each row, you store the results in one 
+or more collections, in a single operation. You can use these keywords in the SELECT INTO and FETCH INTO statements, and the RETURNING INTO clause.
+
+With the BULK COLLECT clause, all the variables in the INTO list must be collections. The table columns can hold scalar or composite values, including object types.
+loads two entire database columns into nested tables:
+
+DECLARE
+TYPE NumTab IS TABLE OF employees.employee_id%TYPE;
+TYPE NameTab IS TABLE OF employees.last_name%TYPE;
+enums NumTab; -- No need to initialize the collections.
+names NameTab; -- Values will be filled in by the SELECT INTO.
+PROCEDURE print_results IS
+BEGIN
+IF enums.COUNT = 0 THEN
+DBMS_OUTPUT.PUT_LINE('No results!');
+ELSE
+DBMS_OUTPUT.PUT_LINE('Results:');
+FOR i IN enums.FIRST .. enums.LAST
+LOOP
+DBMS_OUTPUT.PUT_LINE(' Employee #' || enums(i) || ': ' || names(i));
+END LOOP;
+END IF;
+END;
+BEGIN
+-- Retrieve data for employees with Ids greater than 1000
+SELECT employee_id, last_name
+BULK COLLECT INTO enums, names FROM employees WHERE employee_id > 1000;
+-- The data has all been brought into memory by BULK COLLECT
+-- No need to FETCH each row from the result set
+print_results();
+-- Retrieve approximately 20% of all rows
+SELECT employee_id, last_name
+BULK COLLECT INTO enums, names FROM employees SAMPLE (20);
+print_results();
+END;
+
+
+The collections are initialized automatically. Nested tables and associative arrays are extended to hold as many elements as needed. If you use varrays, all the 
+return values must fit in the varray's declared size. Elements are inserted starting at index 1, overwriting any existing elements. Because the processing of the 
+BULK COLLECT INTO clause is similar to a FETCH loop, it does not raise a NO_DATA_FOUND exception if no rows match the query. You must check whether the resulting 
+nested table or varray is null, or if the resulting associative array has no elements, as shown in Example To prevent the resulting collections from expanding without 
+limit, you can use the LIMIT clause to or pseudocolumn ROWNUM to limit the number of rows processed. You can also use the SAMPLE clause to retrieve a random sample of 
+rows.
+
+
+
+----------------------------------Example 11–12 Bulk-Fetching from a Cursor Into One or More Collections--------------------------------------------
+DECLARE
+TYPE NameList IS TABLE OF employees.last_name%TYPE;
+TYPE SalList IS TABLE OF employees.salary%TYPE;
+CURSOR c1 IS SELECT last_name, salary FROM employees WHERE salary > 10000;
+names NameList;
+sals SalList;
+TYPE RecList IS TABLE OF c1%ROWTYPE;
+recs RecList;
+v_limit PLS_INTEGER := 10;
+PROCEDURE print_results IS
+BEGIN
+IF names IS NULL OR names.COUNT = 0 THEN -- check if collections are empty
+DBMS_OUTPUT.PUT_LINE('No results!');
+ELSE
+DBMS_OUTPUT.PUT_LINE('Results: ');
+FOR i IN names.FIRST .. names.LAST
+LOOP
+DBMS_OUTPUT.PUT_LINE(' Employee ' || names(i) || ': $' || sals(i));
+END LOOP;
+END IF;
+END;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('--- Processing all results at once ---');
+OPEN c1;
+FETCH c1 BULK COLLECT INTO names, sals;
+CLOSE c1;
+print_results();
+DBMS_OUTPUT.PUT_LINE('--- Processing ' || v_limit || ' rows at a time ---');
+OPEN c1;
+LOOP
+FETCH c1 BULK COLLECT INTO names, sals LIMIT v_limit;
+EXIT WHEN names.COUNT = 0;
+print_results();
+END LOOP;
+CLOSE c1;
+DBMS_OUTPUT.PUT_LINE('--- Fetching records rather than columns ---');
+OPEN c1;
+FETCH c1 BULK COLLECT INTO recs;
+FOR i IN recs.FIRST .. recs.LAST
+LOOP
+-- Now all the columns from the result set come from a single record
+DBMS_OUTPUT.PUT_LINE(' Employee ' || recs(i).last_name || ': $'
+|| recs(i).salary);
+END LOOP;
+END;
+
+
+--------------------------------------Bulk-Fetching from a Cursor Into a Collection of Records -------------------------------------
+DECLARE
+TYPE DeptRecTab IS TABLE OF departments%ROWTYPE;
+dept_recs DeptRecTab;
+CURSOR c1 IS
+SELECT department_id, department_name, manager_id, location_id
+FROM departments WHERE department_id > 70;
+BEGIN
+OPEN c1;
+FETCH c1 BULK COLLECT INTO dept_recs;
+END;
+
+
+-----------------------------------Using LIMIT to Control the Number of Rows In a BULK COLLECT --------------------------------------------
+DECLARE
+TYPE numtab IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+CURSOR c1 IS SELECT employee_id FROM employees WHERE department_id = 80;
+empids numtab;
+rows PLS_INTEGER := 10;
+BEGIN
+OPEN c1;
+LOOP -- the following statement fetches 10 rows or less in each iteration
+FETCH c1 BULK COLLECT INTO empids LIMIT rows;
+EXIT WHEN empids.COUNT = 0;
+-- EXIT WHEN c1%NOTFOUND; -- incorrect, can omit some data
+DBMS_OUTPUT.PUT_LINE('------- Results from Each Bulk Fetch --------');
+FOR i IN 1..empids.COUNT LOOP
+DBMS_OUTPUT.PUT_LINE( 'Employee Id: ' || empids(i));
+END LOOP;
+END LOOP;
+CLOSE c1;
+END;
+
+
+--------------------------------------Using BULK COLLECT With the RETURNING INTO Clause ---------------------------------------------------
+CREATE TABLE emp_temp AS SELECT * FROM employees;
+DECLARE
+TYPE NumList IS TABLE OF employees.employee_id%TYPE;
+enums NumList;
+TYPE NameList IS TABLE OF employees.last_name%TYPE;
+names NameList;
+BEGIN
+DELETE FROM emp_temp WHERE department_id = 30
+RETURNING employee_id, last_name BULK COLLECT INTO enums, names;
+DBMS_OUTPUT.PUT_LINE('Deleted ' || SQL%ROWCOUNT || ' rows:');
+FOR i IN enums.FIRST .. enums.LAST
+LOOP
+DBMS_OUTPUT.PUT_LINE('Employee #' || enums(i) || ': ' || names(i));
+END LOOP;
+END;
+
+----------------------------------------Using FORALL With BULK COLLECT----------------------------------------------------
+DECLARE
+TYPE NumList IS TABLE OF NUMBER;
+depts NumList := NumList(10,20,30);
+TYPE enum_t IS TABLE OF employees.employee_id%TYPE;
+TYPE dept_t IS TABLE OF employees.department_id%TYPE;
+e_ids enum_t;
+d_ids dept_t;
+BEGIN
+FORALL j IN depts.FIRST..depts.LAST
+DELETE FROM emp_temp WHERE department_id = depts(j)
+RETURNING employee_id, department_id BULK COLLECT INTO e_ids, d_ids;
+DBMS_OUTPUT.PUT_LINE('Deleted ' || SQL%ROWCOUNT || ' rows:');
+FOR i IN e_ids.FIRST .. e_ids.LAST
+LOOP
+DBMS_OUTPUT.PUT_LINE('Employee #' || e_ids(i) || ' from dept #' || d_ids(i));
+END LOOP;
+END;

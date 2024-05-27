@@ -1,0 +1,57 @@
+---------------------------------------------UTL_FILE Package ------------------------------------------------------------------------------------------
+
+Prerequisite:-
+Create directory like following as I created with the name XML_DIR
+
+Connect with SYS as SYSDBA
+Create directory XML_DIR as 'D:\temp';
+grant read on directory XML_DIR to scott;
+grant write on directory XML_DIR to scott;
+
+------SELECT * FROM DBA_DIRECTORIES; -------------- Query to find out what directories our there in DB
+
+
+Grant execute on UTL_FILE to Scott; -- If not given by default it is;
+ 
+
+
+
+Create Package to export data with help of UTL_FILE 'txt, xls, csv'
+
+CREATE OR REPLACE Procedure SCOTT.Export_Data
+Is
+V_File UTL_FILE.FILE_TYPE;
+V_String Varchar2(4000);
+Cursor C1 is Select empno, ename, job, sal, hiredate, comm from emp;
+
+Begin
+V_File:=UTL_FILE.FOPEN('XML_DIR', 'EXTRACT.csv', 'w',1000);
+V_String:= 'Emp_No, Ename, Job, Salary, Hiredate, Comm';
+UTL_FILE.put_line (V_File, V_String);
+
+For Cur in C1 loop
+V_String:=cur.empno || ',' || cur.ename || ',' ||  cur.job || ',' || cur.sal || ',' || cur.hiredate || ',' || cur.comm;
+UTL_FILE.put_line (V_File, V_String);
+End Loop;
+
+UTL_FILE.FCLOSE(V_File);
+
+Exception
+When others then 
+If UTL_FILE.IS_OPEN(V_File)
+then
+UTL_FILE.FCLOSE(V_File);
+End if;
+
+
+End;
+/
+
+
+
+---- Execute Procedure ------------------------------
+
+
+Begin
+Export_Data;
+End; 
