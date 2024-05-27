@@ -1,0 +1,62 @@
+-------------------------------------Import Data Using UTL_FILE ----------------------------------------------------------
+Prerequisite:-
+Create directory like following as I created with the name XML_DIR
+
+Connect with SYS as SYSDBA
+Create directory XML_DIR as 'D:\temp';
+grant read on directory XML_DIR to scott;
+grant write on directory XML_DIR to scott;
+
+------SELECT * FROM DBA_DIRECTORIES; -------------- Query to find out what directories our there in DB
+
+CREATE TABLE SCOTT.EMP_IMPORT
+(
+  EMPNO     VARCHAR2(50 BYTE),
+  ENAME     VARCHAR2(100 BYTE),
+  JOB       VARCHAR2(100 BYTE),
+  SAL       NUMBER,
+  HIREDATE  DATE,
+  COMM      NUMBER
+)
+/
+
+CREATE OR REPLACE Procedure SCOTT.Import_Data
+Is
+         file1 UTL_FILE.FILE_TYPE;
+         str varchar2(2000 CHAR);
+         V_empno     Varchar2(100);
+         V_ename     Varchar2(100);
+         V_job       Varchar2(100);
+         V_sal       Varchar2(100);
+         V_hiredate  Varchar2(100); 
+         V_comm      Varchar2(100);
+
+        begin
+         file1 := UTL_FILE.FOPEN('XML_DIR','EXTRACT1.csv','R');
+          
+
+         loop
+          UTL_FILE.GET_LINE(file1,str);
+--          dbms_output.put_line(str);
+          V_empno:=REGEXP_SUBSTR(str, '[^,]+', 1,1);
+          V_ename:=REGEXP_SUBSTR(str, '[^,]+', 1,2);
+          V_job:=REGEXP_SUBSTR(str, '[^,]+', 1,3);
+          V_sal:=REGEXP_SUBSTR(str, '[^,]+', 1,4);
+          V_hiredate:=REGEXP_SUBSTR(str, '[^,]+', 1,5);
+          V_comm:=REGEXP_SUBSTR(str, '[^,]+', 1,6);
+
+  --        dbms_output.put_line(V_empno);
+          
+          Insert into emp_import
+(empno, ename, job, sal, hiredate, comm)
+values
+(v_empno, v_ename, v_job, v_sal, v_hiredate, v_comm);
+end loop;
+exception
+when no_data_found then
+UTL_FILE.FCLOSE(file1);
+when others then 
+UTL_FILE.FCLOSE(file1);
+end;
+/
+ 
