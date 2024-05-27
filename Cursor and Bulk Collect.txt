@@ -1,0 +1,51 @@
+Declare
+
+  Cursor C1 is select * from DYEING_BILL_DETAIL;
+  A VARCHAR2(100);
+  B VARCHAR2(100);
+  D Varchar2(100);
+
+Begin
+
+A :=SYSTIMESTAMP;
+  
+ dbms_output.put_line(a);
+ 
+ For i in c1 loop
+  d:=i.bill_no; 
+dbms_output.put_line(d);
+
+end loop;
+B :=SYSTIMESTAMP;
+  dbms_output.put_line(b);
+  end ;
+  
+
+Declare
+
+  A VARCHAR2(100) :=to_char(sysdate, 'HH:MM:SS');
+  B VARCHAR2(100) :=to_char(sysdate, 'HH:MM:SS');
+  D Varchar2(100);
+  Type Billno is Table of DYEING_BILL_DETAIL.bill_no%Type;
+  Bno Billno;
+
+Begin
+
+A :=SYSTIMESTAMP;
+  
+ dbms_output.put_line(a);
+
+ 
+Select bill_no
+bulk collect into Bno
+from DYEING_BILL_DETAIL;
+
+For i in Bno.first.. Bno.last  loop
+dbms_output.put_line(i);
+end loop;
+B :=SYSTIMESTAMP;
+
+dbms_output.put_line(b);
+
+end ;
+  
