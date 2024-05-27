@@ -1,0 +1,160 @@
+------------------------------------------------------------REF CURSOR VARIABLE-----------------------------------------------------------------------------
+
+A REF CURSOR is a PL/SQL data type whose value is the memory address of a query work area on the database. In essence, a REF CURSOR is a pointer or a handle
+to a result set on the database.
+
+A cursor variable is like an explicit cursor, except that:
+• It is not limited to one query.
+You can open a cursor variable for a query, process the result set, and then usethe cursor variable for another query.
+• You can assign a value to it.
+• You can use it in an expression.
+• It can be a subprogram parameter.
+You can use cursor variables to pass query result sets between subprograms.
+• It can be a host variable.
+You can use cursor variables to pass query result sets between PL/SQL stored subprograms and their clients.
+• It cannot accept parameters.
+You cannot pass parameters to a cursor variable, but you can pass whole queries to it. The queries can include variables.
+A cursor variable has this flexibility because it is a pointer; that is, its value is the address of an item, not the item itself.
+Before you can reference a cursor variable, you must make it point to a SQL work area, either by opening it or by assigning it the value of an open PL/SQL 
+cursor variable or open host cursor variable.
+
+
+
+----------------------------------------------- Types of REF CUROSR Variable--------------------------------------------------------------------------------
+PL/SQL has two forms of REF CURSOR types 
+strong typed and weak typed REF CURSOR.
+
+TYPE empcurtyp IS REF CURSOR RETURN emp%ROWTYPE; -- strong type
+TYPE genericcurtyp IS REF CURSOR; -- weak type
+
+---------------------------------------------- Point to Remember before creating REF CURSOR VARIABLE -------------------------------------------------------
+To create a cursor variable, either declare a variable of the predefined type SYS_REFCURSOR or define a REF CURSOR type and then declare a variable of that
+type.
+
+cv SYS_REFCURSOR; -- cursor variable
+TYPE genericcurtyp IS REF CURSOR;
+
+----------------------------------------------SYNTAX TO CREATE REF CURSOR VARIABLE --------------------------------------------------------------------------
+TYPE type_name IS REF CURSOR [ RETURN return_type ]
+
+
+----------------------------------------------Fetching Data with Cursor Variables----------------------------------------------------------------------------
+
+DECLARE
+cv SYS_REFCURSOR; -- cursor variable
+v_lastname emp.ename%TYPE; -- variable for last_name
+v_jobid emp.job%TYPE; -- variable for job_id
+query_2 VARCHAR2(200) :=
+'SELECT * FROM emp
+WHERE REGEXP_LIKE (job, ''[ACADFIMKSA]_M[ANGR]'')
+ORDER BY job';
+v_emp emp%ROWTYPE; -- record variable row of table
+BEGIN
+OPEN cv FOR
+SELECT ename, job FROM emp
+WHERE 
+--REGEXP_LIKE (job, 'S[HT]_CLERK')
+upper(job) like '%CLERK%'
+ORDER BY ename;
+LOOP -- Fetches 2 columns into variables
+FETCH cv INTO v_lastname, v_jobid;
+EXIT WHEN cv%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE( RPAD(v_lastname, 25, ' ') || v_jobid );
+END LOOP;
+DBMS_OUTPUT.PUT_LINE( '-------------------------------------' );
+OPEN cv FOR query_2;
+LOOP -- Fetches entire row into the v_emp record
+FETCH cv INTO v_emp;
+EXIT WHEN cv%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE( RPAD(v_emp.ename, 25, ' ') ||
+v_emp.job );
+END LOOP;
+CLOSE cv;
+END
+/
+
+----------------------------------------------------Fetching from Cursor Variable into Collections----------------------------------------------------------
+
+DECLARE
+TYPE empcurtyp IS REF CURSOR;
+TYPE namelist IS TABLE OF emp.ename%TYPE;
+TYPE sallist IS TABLE OF emp.sal%TYPE;
+emp_cv empcurtyp;
+names namelist;
+sals sallist;
+BEGIN
+OPEN emp_cv FOR
+SELECT ename, sal FROM emp
+WHERE job = 'SALESMAN'
+ORDER BY sal DESC;
+FETCH emp_cv BULK COLLECT INTO names, sals;
+CLOSE emp_cv;
+-- loop through the names and sals collections
+FOR i IN names.FIRST .. names.LAST
+LOOP
+DBMS_OUTPUT.PUT_LINE
+('Name = ' || names(i) || ', salary = ' || sals(i));
+END LOOP;
+END
+/
+
+--------------------------------------------------------Variable in Cursor Variable Query—No Result Set Change-----------------------------------------------
+
+DECLARE
+sal emp.sal%TYPE;
+sal_multiple emp.sal%TYPE;
+factor INTEGER := 2;
+cv SYS_REFCURSOR;
+BEGIN
+OPEN cv FOR
+SELECT sal, sal*factor
+FROM EMP
+WHERE job LIKE 'SALESMAN'; -- PL/SQL evaluates factor
+LOOP
+FETCH cv INTO sal, sal_multiple;
+EXIT WHEN cv%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('factor = ' || factor);
+DBMS_OUTPUT.PUT_LINE('sal = ' || sal);
+DBMS_OUTPUT.PUT_LINE('sal_multiple = ' || sal_multiple);
+factor := factor + 1; -- Does not affect sal_multiple
+END LOOP;
+CLOSE cv;
+END
+/
+
+--------------------------------------------------Variable in Cursor Variable Query—Result Set Change--------------------------------------------------------
+
+
+DECLARE
+sal emp.sal%TYPE;
+sal_multiple emp.sal%TYPE;
+factor INTEGER := 2;
+cv SYS_REFCURSOR;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('factor = ' || factor);
+OPEN cv FOR
+SELECT sal, sal*factor
+FROM emp
+WHERE job LIKE 'SALESMAN%'; -- PL/SQL evaluates factor
+LOOP
+FETCH cv INTO sal, sal_multiple;
+EXIT WHEN cv%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('sal = ' || sal);
+DBMS_OUTPUT.PUT_LINE('sal_multiple = ' || sal_multiple);
+END LOOP;
+factor := factor + 1;
+DBMS_OUTPUT.PUT_LINE('factor = ' || factor);
+OPEN cv FOR
+SELECT sal, sal*factor
+FROM emp
+WHERE JOB LIKE 'SALESMAN%'; -- PL/SQL evaluates factor
+LOOP
+FETCH cv INTO sal, sal_multiple;
+EXIT WHEN cv%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('sal = ' || sal);
+DBMS_OUTPUT.PUT_LINE('sal_multiple = ' || sal_multiple);
+END LOOP;
+CLOSE cv;
+END
+/
+

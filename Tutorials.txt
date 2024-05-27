@@ -1,0 +1,16 @@
+PL/SQL Guide
+https://www.ebi.ac.uk/pdbe/docs/OraCIF/sqluser.pdf
+SQL Guide
+https://docs.oracle.com/cd/E11882_01/server.112/e41084.pdf
+
+
+
+https://oracle-base.com/articles/9i/full-text-indexing-using-oracle-text-9i
+https://docs.oracle.com/cd/B10501_01/text.920/a96517/cdefault.htm#1003403
+https://docs.oracle.com/cd/B10501_01/text.920/a96518/cclspkg.htm#CCREF1500
+https://oracle-base.com/articles/9i/full-text-indexing-using-oracle-text-9i#CONTEXTIndexes
+https://stackoverflow.com/questions/7358137/oracle-full-text-search-with-condition
+
+
+https://www.softwaretestinghelp.com/plsql-interview-questions/
+https://www.interviewbit.com/pl-sql-interview-questions/
