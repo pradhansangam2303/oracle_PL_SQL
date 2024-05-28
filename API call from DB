@@ -1,4 +1,4 @@
-Sure! To ensure the PL/SQL code runs correctly and has the necessary access rights, follow these steps:
+To ensure the PL/SQL code runs correctly and has the necessary access rights, follow these steps:
 
 1. Create Directory Objects
 Create directory objects in Oracle pointing to the directories where your header and body files are stored.
