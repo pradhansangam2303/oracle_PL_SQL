@@ -1,0 +1,357 @@
+Oracle SQL Interview Questions
+Here are some of the frequently asked SQL interview questions. Enjoy!
+
+
+Q1. What is the difference between VARCHAR & VVARCHAR2?
+
+Both VARCHAR & VARCHAR2 are Oracle data types that are used to store character strings of variable length.
+VARCHAR can store characters up to 2000 bytes while VARCHAR2 can store up to 4000 bytes.
+VARCHAR will hold the space for characters defined during declaration even if all of them are not used whereas VARCHAR2 will release the unused space.
+Q2. What is a Relationship and what are they?
+
+Relationships are defined as the connection between the tables in a database. There are various relationships, namely
+
+One-to-One Relationship
+One-to-Many Relationship
+Many-to-One Relationship
+Q3. Explain different types of Normalization.
+
+There are many successive levels of normalization. These are called normal forms. Each consecutive normal form depends on the previous one. The first three normal forms are usually adequate.
+
+First Normal Form (1NF) – No repeating groups within rows
+Second Normal Form (2NF) – Every non-key (supporting) column value is dependent on the whole primary key.
+Third Normal Form (3NF) – Dependent solely on the primary key and no other non-key (supporting) column value
+Q4. How can we find out the duplicate values in an Oracle table?
+
+We can use the below example query to fetch the duplicate records
+
+SELECT EMP_NAME, COUNT (EMP_NAME)
+FROM EMP
+GROUP BY EMP_NAME
+HAVING COUNT (EMP_NAME) > 1;
+Q5. What is the difference between TRUNCATE & DELETE command?
+
+Both the commands are used to remove data from a database. The finer differences between the two include
+
+TRUNCATE is a DDL operation while DELETE is a DML operation.
+TRUNCATE drops all records from the table and hence cannot be rolled back while DELETE command can be rolled back.
+The TRUNCATE command will free the object storage space while the DELETE command does not.
+Q6. What is the difference between DROP and TRUNCATE commands?
+
+DROP command removes a table and it cannot be rolled back from the database whereas TRUNCATE command removes all the rows from the table.
+
+
+Q7. What do you mean by GROUP BY Clause?
+
+A GROUP BY clause can be used in select statement where it will collect data across multiple records and group the results by one or more columns.
+
+
+Q8. What is the use of Aggregate functions in Oracle?
+
+Aggregate functions perform summary operations on a set of values to provide a single value. There are several aggregate functions that we use in our code to perform calculations.
+
+
+Few of them are listed below
+
+AVG
+MIN
+MAX
+COUNT
+SUM
+Q9. How can we find out the current date and time in Oracle?
+
+We can find the current Date & Time using SYSDATE in Oracle
+
+SELECT SYSDATE from dual;
+
+Q10. What do you mean by DBMS? What are its different types?
+
+A database is a structured collection of data.
+
+
+A Database Management System (DBMS) is a software application that interacts with the user, applications and the database itself to capture and analyze data.
+
+
+A DBMS allows a user to interact with the database. The data stored in the database can be modified, retrieved and deleted and can be of any type like strings, numbers, images etc.
+
+
+There are two types of DBMS
+
+Relational Database Management System: The data is stored in relations (tables). Example – MySQL.
+Non-Relational Database Management System: There is no concept of relations, tuples and attributes. Example – Mongo
+Q11. Are NULL values same as that of zero or a blank space?
+
+A NULL value is not at all same as that of zero or a blank space. NULL value represents a value which is unavailable, unknown, assigned or not applicable whereas a zero is a number and blank space is a character.
+
+
+Q12. What is the difference between a Primary Key & a Unique Key?
+
+Primary key is used to identify each table row uniquely, while a Unique Key prevents duplicate values in a table column.
+
+
+Given below are few differences
+
+The primary key can be only one on the table while unique keys can be multiple
+The primary key cannot hold null values at all while unique key can hold null values per column
+The primary key is a clustered index while a unique key is a non-clustered index
+Q13. How do we get field details of a table?
+
+Describe <table_name> is used to get the field details of a specified table.
+
+
+Q14. What is DML?
+
+Data Manipulation Language (DML) is used to access and manipulate data in the existing objects. DML statements are insert, select, update and delete and it won’t implicitly commit the current transaction.
+
+
+Q15. When do we use GROUP BY clause in a SQL Query?
+
+GROUP BY clause is used to identify and group the data by one or more columns in the query results. This clause is often used with aggregate functions like COUNT, MAX, MIN, SUM, AVG etc.
+
+SELECT COLUMN_1, COLUMN_2
+FROM TABLENAME
+WHERE [condition]
+GROUP BY COLUMN_1, COLUMN_2;
+Q16. What is a NVL function? How can it be used?
+NVL is a function, which helps the user to substitute a value if null is encountered for an expression. It can be used as the below syntax
+
+[NVL (Value_In, Replace_With)]
+Q17. What is meant by RAW datatype?
+
+RAW datatype is used to store variable-length binary data or byte strings.
+
+
+The difference between RAW & VARCHAR2 datatype is that PL/SQL does not recognize this data type and hence, cannot do any conversions when RAW data is transferred to different systems. This data type can only be queried or inserted in a table.
+
+
+Q18. What is Normalization and what are the advantages of it?
+
+Normalization is the process of organizing data to avoid duplication and redundancy. Some of the advantages are
+
+Better Database organization
+More Tables with smaller rows
+Efficient data access
+Greater Flexibility for Queries
+Quickly find the information
+Easier to implement Security
+Allows easy modification
+Reduction of redundant and duplicate data
+More Compact Database
+Ensure Consistent data after modification
+Q19. What is the difference between cross join and natural join?
+
+The cross join produces the cross product or Cartesian product of two tables whereas the natural join is based on all the columns having the same name and data types in both the tables.
+
+
+Q20. How can you insert NULL values in a column while inserting the data?
+
+NULL values can be inserted in the following ways:
+
+Implicitly by omitting column from column list.
+Explicitly by specifying NULL keyword in the VALUES clause
+Q21. How can you fetch common records from two tables?
+
+You can fetch common records from two tables using INTERSECT. For example:
+
+Select studentID from student
+INTERSECT
+Select StudentID from Exam;
+
+Q22. What is the difference between SUBSTR & INSTR functions?
+
+SUBSTR function returns the sub-part identified by numeric values from the provided string.
+
+
+Example: [Select SUBSTR (‘India is my country’, 1, 4) from dual] will return “Indi”.
+
+
+INSTR will return the position number of the sub-string within the string.
+
+
+Example: [SELECT INSTR (‘India is my country’, ‘a’) from dual] will return 5.
+
+
+Q23. Why do we need integrity constraints in a database?
+
+Integrity constraints are required to enforce business rules so as to maintain the integrity of the database and prevent the entry of invalid data into the tables. With the help of the below-mentioned constraints, relationships can be maintained between the tables.
+
+
+Q24. What do you mean by a database transaction & what all TCL statements are available in Oracle?
+
+Transaction occurs when a set of SQL statements are executed in one go. To control the execution of these statements, Oracle has introduced TCL i.e. Transaction Control Statements that use a set of statements.
+
+
+The set of statements include
+
+COMMIT: Used to make a transaction permanent.
+ROLLBACK: Used to roll back the state of DB to last the commit point.
+SAVEPOINT: Helps to specify a transaction point to which rollback can be done later.
+Q25. In which language Oracle has been developed?
+
+Oracle has been developed using C Language.
+
+
+Q26. How do we create privileges in Oracle?
+
+A privilege is nothing but right to execute an SQL query or to access another user object. Privilege can be given as system privilege or user privilege
+
+SQL> grant select on employee to scott;
+Q27. What do you mean by table and field in SQL?
+
+A table refers to a collection of data in an organised manner in form of rows and columns. A field refers to the number of columns in a table. For example:
+
+
+Table: Student_Information
+
+Field: Stu Id, Stu Name, Stu Marks
+
+
+Q28. What is a Unique key?
+
+Uniquely identifies a single row in the table.
+Multiple values allowed per table.
+Null values allowed.
+Q29. What is a Foreign key?
+
+Foreign key maintains referential integrity by enforcing a link between the data in two tables
+The foreign key in the child table references the primary key in the parent table
+The foreign key constraint prevents actions that would destroy links between the child and parent tables
+Q30. What do you mean by MERGE in Oracle and how can we merge two tables?
+
+MERGE statement is used to merge the data from two tables. It selects the data from the source table and inserts/updates it in the other table based on the condition provided in the MERGE query
+
+MERGE INTO TARGET_TABLE_1
+USING SOURCE_TABLE_1
+ON SEARCH_CONDITION
+WHEN MATCHED THEN
+INSERT (COL_1, COL_2…)
+VALUES (VAL_1, VAL_2…)
+WHERE <condition>
+WHEN NOT MATCHED THEN
+UPDATE SET COL_1=VAL_1, COL_2=VAL_2…
+WHEN <condition>
+Q31. How will you write a query to get a 5th RANK student from a table STUDENT_REPORT?
+
+The Query will be as follows
+
+SELECT TOP 1 RANK
+FROM (SELECT TOP 5 RANK
+FROM STUDENT_REPORT
+ORDER BY RANK DESC) AS STUDENT
+ORDER BY RANK ASC;
+Q32. How does the ON-DELETE-CASCADE statement work?
+
+Using ON DELETE CASCADE will automatically delete a record in the child table when the same is deleted from the parent table. This statement can be used with Foreign Keys.
+
+
+We can add ON DELETE CASCADE option on an existing table using the below set of commands.
+
+ALTER TABLE CHILD_T1 ADD CONSTRAINT CHILD_PARENT_FK REFERENCES
+PARENT_T1 (COLUMN1) ON DELETE CASCADE;
+Q33. What is the difference between ‘HAVING’ CLAUSE and a ‘WHERE’ CLAUSE?
+
+HAVING clause can be used only with SELECT statement. It is usually used in a GROUP BY clause and whenever GROUP BY is not used, HAVING behaves like a WHERE clause.
+
+Having Clause is only used with the GROUP BY function in a query whereas WHERE Clause is applied to each row before they are a part of the GROUP BY function in a query.
+
+
+Q34. What is subquery in SQL?
+
+A subquery is a query inside another query where a query is defined to retrieve data or information back from the database. In a subquery, the outer query is called as the main query whereas the inner query is called subquery. Subqueries are always executed first and the result of the subquery is passed on to the main query. It can be nested inside a SELECT, UPDATE or any other query. A subquery can also use any comparison operators such as >,< or =.
+
+
+Q35. Can we save images in a database and if yes, how?
+
+BLOB stands for Binary Large Object, which is a datatype that is generally used to hold images, audio & video files or some binary executables.
+
+
+This datatype has the capacity of holding data up to 4 GB.
+
+
+Q36. Why do we use COALESCE function in Oracle?
+
+OALESCE function is used to return the first non-null expression from the list of arguments provided in the expression. Minimum two arguments should be there in an expression
+
+COALESCE (expr 1, expr 2, expr 3…expr n)
+Q37. How do we display rows from the table without duplicates?
+
+Duplicate rows can be removed by using the keyword DISTINCT in the select statement.
+
+
+Q38. What are the set operators UNION, UNION ALL, MINUS & INTERSECT meant to do?
+
+Set operator facilitates the user to fetch the data from two or more than two tables at once if the columns and relative data types are same in the source tables.
+
+UNION operator returns all the rows from both the tables except the duplicate rows.
+UNION ALL returns all the rows from both the tables along with the duplicate rows.
+MINUS returns rows from the first table, which does not exist in the second table.
+INTERSECT returns only the common rows in both the tables.
+Q39. What are the various constraints used in Oracle?
+
+Following are constraints used:
+
+NULL – It is to indicate that particular column can contain NULL values
+NOT NULL – It is to indicate that particular column cannot contain NULL values
+CHECK – Validate that values in the given column to meet the specific criteria
+DEFAULT – It is to indicate the value is assigned to default value
+Q40. What is cross join?
+
+Cross join is defined as the Cartesian product of records from the tables present in the join. Cross join will produce result which combines each row from the first table with the each row from the second table.
+
+
+Q41. What are joins in SQL?
+
+A JOIN clause is used to combine rows from two or more tables, based on a related column between them. It is used to merge two tables or retrieve data from there. There are 4 joins in SQL namely:
+
+Inner Join
+Right Join
+Left Join
+Full Join
+Q42. What is the main difference between ‘BETWEEN’ and ‘IN’ condition operators?
+
+
+BETWEEN operator is used to display rows based on a range of values in a row whereas the IN condition operator is used to check for values contained in a specific set of values.
+
+SELECT * FROM Students where ROLL_NO BETWEEN 10 AND 50;
+SELECT * FROM students where ROLL_NO IN (8,15,25);
+Q43. Can we convert a date to char in Oracle and if so, what would be the syntax?
+
+We can use the TO_CHAR function to do the above conversion.
+
+[SELECT to_char (to_date (’30-01-2018′, ‘DD-MM-YYYY’), ‘YYYY-MM-DD’) FROM dual;]
+
+Q44. What do you mean by De-normalization?
+
+De-normalization refers to a technique which is used to access data from higher to lower forms of a database. It helps the database managers to increase the performance of the entire infrastructure as it introduces redundancy into a table. It adds the redundant data into a table by incorporating database queries that combine data from various tables into a single table.
+
+
+Q45. What are Entities and Relationships?
+
+Entities: A person, place, or thing in the real world about which data can be stored in a database. Tables store data that represents one type of entity. For example – A bank database has a customer table to store customer information. Customer table stores this information as a set of attributes (columns within the table) for each customer.
+
+
+Relationships: Relation or links between entities that have something to do with each other. For example – The customer name is related to the customer account number and contact information, which might be in the same table. There can also be relationships between separate tables (for example, customer to accounts).
+
+
+Q46. What is ACID property in a database?
+
+ACID stands for Atomicity, Consistency, Isolation, Durability. It is used to ensure that the data transactions are processed reliably in a database system.
+
+
+Atomicity: Atomicity refers to the transactions that are completely done or failed where transaction refers to a single logical operation of a data. It means if one part of any transaction fails, the entire transaction fails and the database state is left unchanged.
+
+
+Consistency: Consistency ensures that the data must meet all the validation rules. In simple words, you can say that your transaction never leaves the database without completing its state.
+
+
+Isolation: The main goal of isolation is concurrency control.
+
+
+Durability: Durability means that if a transaction has been committed, it will occur whatever may come in between such as power loss, crash or any sort of error.
+
+
+Q47. Whether any commands are used for Months calculation? If so, What are they?
+
+In Oracle, months_between function is used to find number of months between the given dates. 
+
+Months_between(Date 1, Date 2)
